@@ -164,4 +164,145 @@ class TemplateKitApiTest extends TestCase
             ->assertHeader('X-RateLimit-Limit')
             ->assertHeader('X-RateLimit-Remaining');
     }
+
+    /**
+     * Test extensions search endpoint returns template kits
+     */
+    public function test_extensions_search_endpoint_returns_template_kits(): void
+    {
+        TemplateKit::factory()->count(5)->create([
+            'category' => 'Template Kits',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/extensions/search?type=wordpress&categories=Template Kits&include_template_kits=true');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => ['id', 'name', 'category', 'is_active'],
+                ],
+                'meta' => ['current_page', 'total', 'per_page'],
+            ]);
+    }
+
+    /**
+     * Test extensions search with search terms
+     */
+    public function test_extensions_search_with_search_terms(): void
+    {
+        TemplateKit::factory()->create([
+            'name' => 'Business Template Kit',
+            'category' => 'Template Kits',
+            'is_active' => true,
+        ]);
+
+        TemplateKit::factory()->create([
+            'name' => 'Portfolio Template Kit',
+            'category' => 'Template Kits',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/extensions/search?type=wordpress&search_terms=Business');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals(1, count($data));
+        $this->assertStringContainsString('Business', $data[0]['name']);
+    }
+
+    /**
+     * Test extensions search with industries filter
+     */
+    public function test_extensions_search_with_industries(): void
+    {
+        TemplateKit::factory()->create([
+            'name' => 'Tech Template Kit',
+            'category' => 'Template Kits',
+            'industries' => ['Technology', 'Software'],
+            'is_active' => true,
+        ]);
+
+        TemplateKit::factory()->create([
+            'name' => 'Health Template Kit',
+            'category' => 'Template Kits',
+            'industries' => ['Healthcare', 'Medical'],
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/extensions/search?type=wordpress&industries=Technology');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals(1, count($data));
+        $this->assertEquals('Tech Template Kit', $data[0]['name']);
+    }
+
+    /**
+     * Test extensions search with tags filter
+     */
+    public function test_extensions_search_with_tags(): void
+    {
+        TemplateKit::factory()->create([
+            'name' => 'Modern Template Kit',
+            'category' => 'Template Kits',
+            'tags' => ['modern', 'minimal'],
+            'is_active' => true,
+        ]);
+
+        TemplateKit::factory()->create([
+            'name' => 'Classic Template Kit',
+            'category' => 'Template Kits',
+            'tags' => ['classic', 'traditional'],
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/extensions/search?type=wordpress&tags=modern');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals(1, count($data));
+        $this->assertEquals('Modern Template Kit', $data[0]['name']);
+    }
+
+    /**
+     * Test extensions search pagination
+     */
+    public function test_extensions_search_pagination(): void
+    {
+        TemplateKit::factory()->count(20)->create([
+            'category' => 'Template Kits',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/extensions/search?type=wordpress&page=2');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('meta.current_page', 2);
+    }
+
+    /**
+     * Test extensions search only returns active template kits
+     */
+    public function test_extensions_search_only_returns_active_template_kits(): void
+    {
+        TemplateKit::factory()->create([
+            'name' => 'Active Template',
+            'category' => 'Template Kits',
+            'is_active' => true,
+        ]);
+
+        TemplateKit::factory()->create([
+            'name' => 'Inactive Template',
+            'category' => 'Template Kits',
+            'is_active' => false,
+        ]);
+
+        $response = $this->getJson('/api/extensions/search?type=wordpress');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals(1, count($data));
+        $this->assertEquals('Active Template', $data[0]['name']);
+    }
 }

@@ -23,6 +23,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // Public routes
 Route::get('/template-kits', [TemplateKitController::class, 'index']);
 Route::get('/template-kits/{id}', [TemplateKitController::class, 'show']);
+Route::get('/extensions/search', [TemplateKitController::class, 'search']);
 
 // Protected routes requiring authentication
 Route::middleware(['auth:sanctum'])->group(function () {
