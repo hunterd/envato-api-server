@@ -108,6 +108,38 @@ Optional query parameters:
 GET /api/template-kits/{id}
 ```
 
+#### Search template kits (Public - Envato Elements API compatible)
+```bash
+GET /api/extensions/search
+```
+
+Optional query parameters:
+- `type` - Filter by type (e.g., 'wordpress')
+- `categories` - Filter by category (e.g., 'Template Kits')
+- `industries` - Filter by industries (comma-separated or array)
+- `search_terms` - Search by name, description, or author
+- `tags` - Filter by tags (comma-separated or array)
+- `page` - Page number for pagination (max: 50)
+- `include_template_kits` - Include template kits in results (set to 'true')
+
+Example:
+```bash
+GET /api/extensions/search?type=wordpress&categories=Template%20Kits&search_terms=business&page=1
+```
+
+Returns paginated results with metadata:
+```json
+{
+  "data": [...],
+  "meta": {
+    "current_page": 1,
+    "total": 25,
+    "per_page": 15,
+    "last_page": 2
+  }
+}
+```
+
 #### Create a template kit (Protected)
 ```bash
 POST /api/template-kits
@@ -122,6 +154,7 @@ Content-Type: application/json
   "version": "1.0.0",
   "thumbnail": "https://example.com/image.jpg",
   "tags": ["tag1", "tag2"],
+  "industries": ["Technology", "Business"],
   "files": ["file1.html", "file2.css"],
   "price": 29.99,
   "is_active": true
@@ -174,6 +207,7 @@ Authorization: Bearer {your-token}
 - `version` - Template version
 - `thumbnail` - Thumbnail URL
 - `tags` - JSON array of tags
+- `industries` - JSON array of industries
 - `files` - JSON array of file names
 - `price` - Template price
 - `is_active` - Active status

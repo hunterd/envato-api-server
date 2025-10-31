@@ -22,6 +22,7 @@ class TemplateKit extends Model
         'version',
         'thumbnail',
         'tags',
+        'industries',
         'files',
         'price',
         'is_active',
@@ -36,6 +37,7 @@ class TemplateKit extends Model
     {
         return [
             'tags' => 'array',
+            'industries' => 'array',
             'files' => 'array',
             'price' => 'decimal:2',
             'is_active' => 'boolean',
